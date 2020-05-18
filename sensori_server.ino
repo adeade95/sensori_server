@@ -7,6 +7,9 @@
   
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
+
+  posto librerie
+  C:\Users\adewa\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi
 */
 
 // Import required libraries
@@ -27,6 +30,7 @@ IPAddress gateway(192, 168, 01, 1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(8, 8, 8, 8); //optional
 IPAddress secondaryDNS(8, 8, 4, 4); //optional
+#define inpin 1
 /*#include <SPI.h>
 #define BME_SCK 18
 #define BME_MISO 19
@@ -53,10 +57,14 @@ String readPres() {
   return String(bme.readPressure() / 100.0F);
 }
 */
+
+  char ttext='3';
+  
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
   Serial.println();
+   pinMode(inpin, INPUT);    // sets the digital pin 4 led pin as output
   
   // Setting the ESP as an access point
   //Serial.print("Setting AP (Access Point)…");
@@ -81,6 +89,16 @@ void setup(){
   Serial.println("");
   Serial.print("Connected to WiFi network with IP Address: ");
   Serial.println(WiFi.localIP());
+
+
+  //ricezione richiesta
+   server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(digitalRead(inpin)==LOW)
+      ttext='0';
+    if(digitalRead(inpin)==HIGH)
+      ttext='1';      
+    request->send_P(200, "text/plain", &ttext);
+  });
   /*
   server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readTemp().c_str());
@@ -91,7 +109,7 @@ void setup(){
   server.on("/pressure", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readPres().c_str());
   });
-  */
+  
   bool status;
 /*
   // default settings
