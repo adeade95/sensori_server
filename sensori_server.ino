@@ -22,7 +22,11 @@ const char* ssid = "TP-LINK_F552";
 const char* password = "23395985";
 
 // set ip address
-IPAddress ip = (192,168.0,21);
+IPAddress local_IP(192, 168, 0, 21);
+IPAddress gateway(192, 168, 01, 1);
+IPAddress subnet(255, 255, 255, 0);
+IPAddress primaryDNS(8, 8, 8, 8); //optional
+IPAddress secondaryDNS(8, 8, 4, 4); //optional
 /*#include <SPI.h>
 #define BME_SCK 18
 #define BME_MISO 19
@@ -63,14 +67,17 @@ void setup(){
   IPAddress IP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(IP);*/
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("STA Failed to configure");}
 
-  //WiFi.config(ip);//non usato i n esp32
   WiFi.begin(ssid, password);
+
   Serial.println("Connecting");
   while(WiFi.status() != WL_CONNECTED) { 
     delay(500);
     Serial.print(".");
   }
+//    WiFi.config(ip);//non usato i n esp32
   Serial.println("");
   Serial.print("Connected to WiFi network with IP Address: ");
   Serial.println(WiFi.localIP());
