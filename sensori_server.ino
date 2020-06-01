@@ -12,7 +12,7 @@ IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(8, 8, 8, 8); //optional
 IPAddress secondaryDNS(8, 8, 4, 4); //optional
 
-#define inpin 1 // pin 1 come ingresso
+#define inpin 16 // pin 1 come ingresso
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -59,17 +59,20 @@ void setup()
   Serial.println("creazione server su porta 80");
   AsyncWebServer server(80);
   Serial.println("creato server su porta 80");*/
-  Serial.println("settaggio pin 4 input");
+  Serial.println("settaggio pin inpin input");
   pinMode(inpin, INPUT);    // sets the digital pin 4 led pin as output
-  Serial.println("settato pin 4 input");
+  digitalWrite(inpin, HIGH);// pull up alto
+  Serial.println("settato inpin input");
 
     //ricezione richiesta
    server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
-      Serial.println("ricevuta richiesta");    
-    if(digitalRead(inpin)==LOW)
-      ttext="0";
-    if(digitalRead(inpin)==HIGH)
-      ttext="1";      
+      Serial.println("ricevuta richiesta");   
+    if(digitalRead(inpin)==LOW){
+      Serial.println("stato basso"); 
+      ttext="0";}
+    if(digitalRead(inpin)==HIGH){
+      Serial.println("stato alto"); 
+      ttext="1";}
     request->send_P(200, "text/plain", ttext.c_str());
   });
 
