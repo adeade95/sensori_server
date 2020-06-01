@@ -17,6 +17,9 @@ IPAddress secondaryDNS(8, 8, 4, 4); //optional
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
+int statetrigger[2]={1,2}; //salvo gli stati momentaneamente letti e il trigger, riservo i primi posti per gli stati e i successivi per iltrigger rispettivi
+int stato[1]={1}; // dove salvolo stato che mi definisce il riposo
+
 String ttext="3"; //definizione variabile per lo stato dell'ingresso
 
 void ConnectToWiFi()
@@ -48,7 +51,19 @@ WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);
   Serial.println(WiFi.localIP());
 }
 
-
+int lett(int npin){ //funzione lettura pin
+    int vlett=2;
+    if(digitalRead(npin)==LOW){
+      Serial.print(npin);
+      Serial.println(" stato basso"); 
+      vlett=0;}
+    if(digitalRead(npin)==HIGH){
+      Serial.print(npin);
+      Serial.println(" stato alto"); 
+      vlett=1;}
+    return vlett;
+  }
+  
 void setup() 
 {
   Serial.begin(115200);
@@ -66,13 +81,7 @@ void setup()
 
     //ricezione richiesta
    server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
-      Serial.println("ricevuta richiesta");   
-    if(digitalRead(inpin)==LOW){
-      Serial.println("stato basso"); 
-      ttext="0";}
-    if(digitalRead(inpin)==HIGH){
-      Serial.println("stato alto"); 
-      ttext="1";}
+    ttext=String(lett(inpin));
     request->send_P(200, "text/plain", ttext.c_str());
   });
 
