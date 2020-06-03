@@ -17,8 +17,10 @@ IPAddress secondaryDNS(8, 8, 4, 4); //optional
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
+int ningressi = 1;  //numero totale di ingressi, alla fine sulla scheda ne dovremmo prevedere almeno 12 e 4 uscite
+int pin[1]={16};  //numero dei pin in ingresso
 int statetrigger[2]={1,2}; //salvo gli stati momentaneamente letti e il trigger, riservo i primi posti per gli stati e i successivi per iltrigger rispettivi
-int stato[1]={1}; // dove salvolo stato che mi definisce il riposo
+int stato[1]={1}; // dove salvo lo stato che mi definisce il riposo
 
 String ttext="3"; //definizione variabile per lo stato dell'ingresso
 
@@ -51,7 +53,14 @@ WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);
   Serial.println(WiFi.localIP());
 }
 
-int lett(int npin){ //funzione lettura pin
+char* cifretolett (int nvett[], int iniz, int fin){  //funzione che ricevuto in ngresso un vettore di interi e le riunisce a gruppi di 4,     da sistemare ancora è dacpire come usare, altrimenti copiamo e incolliamo solo il contenuto
+  char lettere [fin-iniz];
+  for(int i=iniz;i<=fin;i++)
+   lettere [i]= (char) nvett[i];
+  return lettere;
+}
+
+int lettf1(int npin){ //funzione lettura pin fase 1
     int vlett=2;
     if(digitalRead(npin)==LOW){
       Serial.print(npin);
@@ -63,7 +72,10 @@ int lett(int npin){ //funzione lettura pin
       vlett=1;}
     return vlett;
   }
+int lettf2(){
   
+  }
+
 void setup() 
 {
   Serial.begin(115200);
@@ -79,9 +91,15 @@ void setup()
   digitalWrite(inpin, HIGH);// pull up alto
   Serial.println("settato inpin input");
 
-    //ricezione richiesta
+    //ricezione richiesta info stato sensori
    server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
-    ttext=String(lett(inpin));
+    ttext=String(lettf1(inpin));
+    request->send_P(200, "text/plain", ttext.c_str());
+  });
+
+    //ricezione richiesta inizializzazione stato sensori
+   server.on("/init", HTTP_GET, [](AsyncWebServerRequest *request){
+    ttext=String(lettf1(inpin));
     request->send_P(200, "text/plain", ttext.c_str());
   });
 
