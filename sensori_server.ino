@@ -18,11 +18,14 @@ IPAddress secondaryDNS(8, 8, 4, 4); //optional
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-int ningressi = 1;  //numero totale di ingressi, alla fine sulla scheda ne dovremmo prevedere almeno 12 e 4 uscite
+int ningressi = 2;  //numero totale di ingressi, alla fine sulla scheda ne dovremmo prevedere almeno 12 e 4 uscite
 int pin[1]={16};  //numero dei pin in ingresso
-int statetrigger[2]={1,2}; //salvo gli stati momentaneamente letti e il trigger, riservo i primi posti per gli stati e i successivi per iltrigger rispettivi
-int statorip[1]={1}; // dove salvo lo stato che mi definisce il riposo
-int statoattuale[1];  //dove salvp lo stato attuale
+int statetrigger[2]={2,2}; //salvo gli stati momentaneamente letti e il trigger, riservo i primi posti per gli stati e i successivi per iltrigger rispettivi
+int statorip[2]={1,1}; // dove salvo lo stato che mi definisce il riposo
+int statoattuale[2];  //dove salvo lo stato attuale
+char statetriggerchar[3]="22";  //salvo gli stati momentaneamente letti e il trigger, riservo i primi posti per gli stati e i successivi per iltrigger rispettivi
+char stateattualechar[3]="22";  //dove salvo lo stato attuale che poi stamperò
+char statoripchar[3]="22";  // dove salvo lo stato che mi definisce il riposo che poi potrò stampare
 
 String ttext="3"; //definizione variabile per lo stato dell'ingresso
 
@@ -102,14 +105,9 @@ int arrayinttochar(int* intarray, char* chararray, int numcar){ //converte array
       chararray[i]='2';
     }
     chararray[numcar]='\0'; //per chiudere l'array di char, quindi l'array di char dovrà avere una casella in più
-  }
-  
-int creastringa(int* vn, int n){//funzione creazione vettore di caratteri da inviare 
-  for(int i=0;i<n;i++){
-    
-    }
     return 1;
   }
+  
 
 void setup() 
 {
@@ -137,10 +135,19 @@ void setup()
     ttext=String(lettf1(inpin));
     request->send_P(200, "text/plain", ttext.c_str());  //invia stringa
   });
+  
+    //reset triigger
+   server.on("/resettrigger", HTTP_GET, [](AsyncWebServerRequest *request){
+    resettrigger(ningressi,statetrigger); //reset trigger----------------------------------------------
+    ttext=String(lettf1(inpin));  //per poi  stampare
+    request->send_P(200, "text/plain", ttext.c_str());
+  });
 
   server.begin(); //inizializzazione server
 }
 
     //ricezione richiesta reset trigger da creare-----------------------------------
     
-void loop(){}
+void loop(){
+  
+  }
