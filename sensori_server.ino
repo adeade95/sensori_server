@@ -19,10 +19,10 @@ IPAddress secondaryDNS(8, 8, 4, 4); //optional
 AsyncWebServer server(80);
 
 int ningressi = 2;  //numero totale di ingressi, alla fine sulla scheda ne dovremmo prevedere almeno 12 e 4 uscite
-int pin[1]={16};  //numero dei pin in ingresso
+int pin[2]={16,12};  //numero dei pin in ingresso
 int statetrigger[2]={2,2}; //salvo gli stati momentaneamente letti e il trigger, riservo i primi posti per gli stati e i successivi per iltrigger rispettivi
 int statorip[2]={1,1}; // dove salvo lo stato che mi definisce il riposo
-int statoattuale[2];  //dove salvo lo stato attuale
+int statoattuale[2]={2,2};  //dove salvo lo stato attuale
 char statetriggerchar[3]="22";  //salvo gli stati momentaneamente letti e il trigger, riservo i primi posti per gli stati e i successivi per iltrigger rispettivi
 char stateattualechar[3]="22";  //dove salvo lo stato attuale che poi stamperò
 char statoripchar[3]="22";  // dove salvo lo stato che mi definisce il riposo che poi potrò stampare
@@ -58,13 +58,6 @@ WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);
   Serial.println(WiFi.localIP());
 }
 
-char* cifretolett (int nvett[], int iniz, int fin){  //funzione che ricevuto in ingresso un vettore di interi e le riunisce a gruppi di 4,     da sistemare ancora è da capire come usare, altrimenti copiamo e incolliamo solo il contenuto
-  char lettere [fin-iniz];
-  for(int i=iniz;i<=fin;i++)
-   lettere [i]= (char) nvett[i];
-  return lettere;
-}
-
 void resettrigger(int numcaselle, int *vettrigger){ //funzione per resettare vettore trigger
   int i=0; //indice per scorrere il vettore
   for(i=0;i<=numcaselle;i++)
@@ -84,12 +77,13 @@ int lettf1(int npin){ //funzione lettura pin fase 1
       vlett=1;}
     return vlett;
   }
-  
-int lettf2(int numtotpin, int *numpin, int *statipin, int *statitriggerf, int *statoattualef){  //funzione lettura ingresso e cambiamento stato trigger
+
+//numero totale pin, array con numero pin, array dove salvo stati pin, array in cui salvo il trigger, array con cui faccio il confronto per scegliere se attivare trigger 
+int lettf2(int numtotpin, int *numpin, int *statirippin, int *statitriggerf, int *statoattualef){  //funzione lettura ingresso e cambiamento stato trigger
   int i=0;  //indice per scorrere il vettore
   for(i=0;i<=numtotpin;i++){
-    statipin[i]=lettf1(numpin[i]);
-    if(statipin[i]!=statoattualef[i])
+    statirippin[i]=lettf1(numpin[i]);
+    if(statirippin[i]!=statoattualef[i])
       statitriggerf[i]=1;
     }
     return 1; // avvenuta la corretta lettura
@@ -105,8 +99,12 @@ int arrayinttochar(int* intarray, char* chararray, int numcar){ //converte array
       chararray[i]='2';
     }
     chararray[numcar]='\0'; //per chiudere l'array di char, quindi l'array di char dovrà avere una casella in più
-    return 1;
+    return 1;  //andato a buon fine
   }
+
+int arraychartostring (char *chararray, String stringa){  // NON USARE converte array di char in stringa giusto per ricordarsi come sifa, ma IMPORTANTE l'array di char deve avere '/0'
+  stringa = String(chararray);
+}
   
 
 void setup() 
@@ -126,9 +124,19 @@ void setup()
 
     //ricezione richiesta info stato sensori
    server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
-    ttext=String(lettf1(inpin));
+   if(lettf2(ningressi, pin, statorip, statetrigger, statoattuale))
+      Serial.println("ricevuta richiesta STATE e ho appena letto i pin adesso converto");
+    else
+     Serial.println("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");
+    arrayinttochar(statoattuale, stateattualechar, ningressi);
+    ttext=String(stateattualechar);
     request->send_P(200, "text/plain", ttext.c_str());
   });
+  /*  //ricezione richiesta info stato sensori copia DI BACKUP
+     server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
+    ttext=String(lettf1(inpin));
+    request->send_P(200, "text/plain", ttext.c_str());
+  });*/
 
     //ricezione richiesta inizializzazione stato sensori
    server.on("/init", HTTP_GET, [](AsyncWebServerRequest *request){
