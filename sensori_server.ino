@@ -141,22 +141,39 @@ void setup()
    server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
    if(lettf2(ningressi, ingpin, statorip, statetrigger, statoattuale))
       Serial.println("ricevuta richiesta STATE e ho appena letto i pin adesso converto");
-    else
+    else{
      Serial.println("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");
+     ttext=String("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");}
     arrayinttochar(statoattuale, stateattualechar, ningressi);
     Serial.println(String(stateattualechar));
     ttext=String(stateattualechar);
     request->send_P(200, "text/plain", ttext.c_str());
   });
-  /*  //ricezione richiesta info stato sensori copia DI BACKUP
+  /*  //ricezione richiesta info stato sensori copia DI BACKUP da cancellare quando va tutto
      server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
     ttext=String(lettf1(inpin));
     request->send_P(200, "text/plain", ttext.c_str());
   });*/
 
-    //ricezione richiesta inizializzazione stato sensori
-   server.on("/init", HTTP_GET, [](AsyncWebServerRequest *request){
-    ttext=String(lettf1(inpin));
+    //ricezione richiesta inizializzazione stato sensori acquisendo come dovrebbero essere a risposo
+   server.on("/ripinit", HTTP_GET, [](AsyncWebServerRequest *request){
+    //acquisizione per stato rip
+    //acquisire ingressi
+    if(lettf2(ningressi, ingpin, statorip, statetrigger, statorip))
+      Serial.println("ricevuta richiesta STATE e ho appena letto i pin adesso converto");
+    else{
+     Serial.println("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");
+     ttext=String("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");
+     }
+    arrayinttochar(statorip, statoripchar, ningressi);        //convertirli in strings    
+    ttext=String(statoripchar);
+    request->send_P(200, "text/plain", ttext.c_str());  //invia stringa
+  });
+
+    //ricezione richiesta per conoscere qual'è lo stato di riposo
+   server.on("/rip", HTTP_GET, [](AsyncWebServerRequest *request){
+    arrayinttochar(statorip, statoripchar, ningressi);        //convertirli in strings    
+    ttext=String(statoripchar);
     request->send_P(200, "text/plain", ttext.c_str());  //invia stringa
   });
   
@@ -169,10 +186,31 @@ void setup()
     request->send_P(200, "text/plain", ttext.c_str());
   });
 
+    //funzione per leggere se qualcosa ha triggerato
+   server.on("/triggerinf", HTTP_GET, [](AsyncWebServerRequest *request){
+    //acquisire ingressi
+    if(lettf2(ningressi, ingpin, statorip, statetrigger, statoattuale))
+      Serial.println("ricevuta richiesta STATE e ho appena letto i pin adesso converto");
+    else{
+     Serial.println("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");
+     ttext=String("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");
+     }
+    arrayinttochar(statetrigger, statetriggerchar, ningressi);        //convertirli in strings
+    ttext=String(statetriggerchar);    //decido cosa spedire e inviare
+    request->send_P(200, "text/plain", ttext.c_str());
+  });
+
   server.begin(); //inizializzazione server
 }
-
+/*
+ * in sostanza prima la centralina dovrà fare ripinit, resettrigger, triggerinf
+ */
     
 void loop(){
-  
+      //acquisire ingressi in continuazione
+    if(lettf2(ningressi, ingpin, statorip, statetrigger, statoattuale))
+      Serial.println("ricevuta richiesta STATE e ho appena letto i pin adesso converto");
+    else{
+     Serial.println("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");
+     }
   }
