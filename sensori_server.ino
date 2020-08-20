@@ -209,8 +209,8 @@ void setup()
 void loop(){
       //acquisire ingressi in continuazione
     if(lettf2(ningressi, ingpin, statorip, statetrigger, statoattuale))
-      Serial.println("ricevuta richiesta STATE e ho appena letto i pin adesso converto");
+      Serial.println("leggo i pin in attesa di richieste");
     else{
-     Serial.println("ricevuta richiesta STATE e ho appena letto MALE i pin adesso converto");
+     Serial.println("leggo i pin in attesa di richieste e ho appena letto MALE i pin adesso converto");
      }
   }
